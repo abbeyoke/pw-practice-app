@@ -14,7 +14,7 @@ tests/
 │   └── components/                # Reusable UI components
 │       ├── HeaderComponent.ts    # Navigation and header elements
 │       └── FormComponent.ts       # Common form interactions
-├── prTest.spec.ts                 # Main test file
+├── commitTests.spec.ts            # Main test file
 └── README.md                      # This documentation
 ```
 
@@ -76,7 +76,7 @@ tests/
 
 ## Test Files
 
-### `prTest.spec.ts`
+### `commitTests.spec.ts`
 - **Purpose**: Main test file demonstrating the framework
 - **Test Structure**:
   - Navigation tests
@@ -146,7 +146,7 @@ class LoginPage {
 npx playwright test
 
 # Run specific test file
-npx playwright test prTest.spec.ts
+npx playwright test commitTests.spec.ts
 
 # Run with UI mode
 npx playwright test --ui
@@ -202,7 +202,28 @@ npx playwright test --debug --trace on
 1. **Explore the structure** - Start with `BasePage.ts` to understand common functionality
 2. **Check page objects** - Look at `LoginPage.ts` for examples
 3. **Review components** - Examine `HeaderComponent.ts` and `FormComponent.ts`
-4. **Run the tests** - Execute `prTest.spec.ts` to see the framework in action
+4. **Run the tests** - Execute `commitTests.spec.ts` to see the framework in action
 5. **Add new pages** - Follow the established patterns for new functionality
 
 This project demonstrates a production-ready test automation framework that scales with your application and follows Playwright best practices.
+
+## GitHub Actions Integration
+
+The project includes automated testing via GitHub Actions:
+
+### Workflows
+- **`playwright-tests.yml`** - Runs all tests on PRs to main/develop branches
+- **`commit-test.yml`** - Fast commit test check for quick feedback
+
+### Features
+- ✅ **Automatic testing** on every PR
+- ✅ **Multi-browser support** (Chrome, Firefox, Safari)
+- ✅ **Test artifacts** uploaded on failure
+- ✅ **Trace files** available for debugging
+- ✅ **Fast feedback** with focused commit tests
+
+### CI/CD Benefits
+- **Pre-merge validation** - Catch issues before merging
+- **Automated reports** - Test results and traces uploaded
+- **Multi-environment** - Tests run in clean CI environment
+- **Scalable** - Easy to add more tests and environments
