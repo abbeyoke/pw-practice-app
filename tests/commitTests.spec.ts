@@ -27,6 +27,11 @@ test.describe("commit tests", () =>{
         const isDashboardPresent = await basePage.isElementPresent(dashboardLink);
         expect(isDashboardPresent).toBe(true);
         console.log("isDashboardPresent: ", isDashboardPresent)
+
+        // Check is the lightbulb icon is present
+        const lightbulb = page.locator('nb-lightbulb').first()
+        const isLightbulbPresent = await basePage.isElementPresent(lightbulb)
+
     })
 })
 
