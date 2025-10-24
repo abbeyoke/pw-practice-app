@@ -1,0 +1,65 @@
+# Comprehensive Playwright Test Suite Workflow
+# This workflow runs all Playwright tests across multiple browsers AFTER merge
+name: Playwright Tests
+
+# Trigger conditions: When to run this workflow
+on:
+  push:
+    branches: [main, develop] # Only run on direct pushes to main/develop (after merge)
+
+jobs:
+  test:
+    # Set timeout to prevent hanging (60 minutes max for full test suite)
+    timeout-minutes: 60
+    # Run on latest Ubuntu (free GitHub-hosted runner)
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the code from the repository
+      - uses: actions/checkout@v4
+
+      # Step 2: Setup Node.js environment
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18 # Use Node.js 18 (LTS version)
+
+      # Step 3: Install project dependencies
+      - name: Install dependencies
+        run: npm ci # Use npm ci for faster, reliable installs in CI
+
+      # Step 4: Install all Playwright browsers
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+        # Install Chrome, Firefox, and Safari for cross-browser testing
+
+      # Step 5: Start the Angular application
+      - name: Start Application
+        run: |
+          npm start &        # Start the app in background
+          sleep 30          # Wait 30 seconds for app to start
+          curl -f http://localhost:4200 || exit 1  # Verify app is running
+        env:
+          CI: true # Set CI flag for Angular build optimizations
+
+      # Step 6: Run all Playwright tests across all browsers
+      - name: Run Playwright tests
+        run: npx playwright test
+        # Runs all tests in all configured browsers (Chrome, Firefox, Safari)
+
+      # Step 7: Upload test reports (always upload for analysis)
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always() # Upload regardless of test outcome
+        with:
+          name: playwright-report # Artifact name for download
+          path: playwright-report/ # Path to HTML test reports
+          retention-days: 30 # Keep reports for 30 days
+
+      # Step 8: Upload trace files (only on failure for debugging)
+      - name: Upload trace files
+        uses: actions/upload-artifact@v4
+        if: failure() # Only upload if tests fail
+        with:
+          name: playwright-trace # Artifact name for debugging
+          path: test-results/ # Path to trace files and screenshots
+          retention-days: 30 # Keep traces for 30 days
