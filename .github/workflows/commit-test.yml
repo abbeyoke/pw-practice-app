@@ -1,0 +1,61 @@
+# Commit Test Workflow
+# This workflow runs all commit tests for quick feedback on PRs
+name: Commit Test Check
+
+# Trigger conditions: When to run this workflow
+on:
+  pull_request:
+    branches: [main, develop] # Only run on PRs to main or develop branches
+    paths: # Only run when these files change
+      - "tests/**" # Any test files
+      - "src/**" # Source code changes
+      - "package.json" # Dependency changes
+      - "playwright.config.ts" # Test configuration changes
+
+jobs:
+  commit-test:
+    # Set timeout to prevent hanging (30 minutes max)
+    timeout-minutes: 30
+    # Run on latest Ubuntu (free GitHub-hosted runner)
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the code from the repository
+      - uses: actions/checkout@v4
+
+      # Step 2: Setup Node.js environment
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18 # Use Node.js 18 (LTS version)
+
+      # Step 3: Install project dependencies
+      - name: Install dependencies
+        run: npm ci # Use npm ci for faster, reliable installs in CI
+
+      # Step 4: Install Playwright browser (Chromium only for speed)
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps chromium
+        # Only install Chromium to save time and resources
+
+      # Step 5: Start the Angular application
+      - name: Start Application
+        run: |
+          npm start &        # Start the app in background
+          sleep 30          # Wait 30 seconds for app to start
+          curl -f http://localhost:4200 || exit 1  # Verify app is running
+        env:
+          CI: true # Set CI flag for Angular build optimizations
+
+      # Step 6: Run all commit tests
+      - name: Run Commit Tests
+        run: npx playwright test commitTests.spec.ts --project=chromium
+        # Run all tests in commitTests.spec.ts with Chromium browser
+
+      # Step 7: Upload test artifacts if test fails
+      - name: Upload test results on failure
+        uses: actions/upload-artifact@v4
+        if: failure() # Only upload if the test fails
+        with:
+          name: commit-test-results # Artifact name for download
+          path: test-results/ # Path to test results and traces
+          retention-days: 7 # Keep artifacts for 7 days
