@@ -1,41 +1,42 @@
 import {test, expect} from "@playwright/test"
 import { first } from "rxjs-compat/operator/first"
 import { LoginPage } from "./pages/LoginPage"
+import { BasePage } from "./pages/BasePage"
 
-test.beforeEach(async({page}) => {
-    await page.goto('http://localhost:4200/')
-})
+// Global BasePage instance for all tests
+let basePage: BasePage;
 
-test.describe("first suite", () =>{
+test.describe("commit tests", () =>{
     test.beforeEach(async({page}) => {
-        await page.getByText('Forms').click()
-    })
-    test("first test", async ({page}) =>{
-        await page.getByText('Form Layouts').click()
-    })
-
-    test("second test", async ({page}) =>{
-        await page.getByText('DatePicker').click()
-    })
-})
-
-test.describe("second suite", () =>{
-    test.beforeEach(async({page}) => {
-        var is_present = await page.getByText('Charts', {exact:true}).isVisible()
-        await page.getByText('Charts', {exact:true}).click()
+        await page.goto('http://localhost:4200/')
+        // Initialize BasePage for each test in this suite
+        basePage = new BasePage(page);
     })
 
-    test("third test", async ({page}) =>{
-        await page.getByText('eCharts', {exact:true}).click()
-    })
+    test('landing page test', async ({page}) => {
+        //get the title of the page and assert it
+        await basePage.waitForPageLoad()
+        const title = await page.title()
+        expect(title).toBe('playwright-test-admin Demo Application')
 
-    test("forth test", ({page}) =>{
-
+        const dashboardLink = page.getByRole('link', {name: 'IoT Dashboard', exact: true})
+        await basePage.waitForElementPresent(dashboardLink)
+        expect(dashboardLink).toHaveText('IoT Dashboard')
+        
+        // Check if dashboard link is present
+        const isDashboardPresent = await basePage.isElementPresent(dashboardLink);
+        expect(isDashboardPresent).toBe(true);
+        console.log("isDashboardPresent: ", isDashboardPresent)
     })
 })
 
+/*
 test.describe("third suite", () =>{
     test.beforeEach(async({page}) => {
+        await page.goto('http://localhost:4200/')
+        // Initialize BasePage for each test in this suite
+        basePage = new BasePage(page);
+        
         var is_present = await page.getByText('Forms').isVisible()
         await page.getByText('Forms').click()
         await page.getByText('Form Layouts').click()
@@ -125,7 +126,21 @@ test.describe("third suite", () =>{
 
     test("login test", async ({ page }) => {
         const loginPage = new LoginPage(page);
+        
         await loginPage.navigateToLogin()
+        
+        // Wait for login form to be present
+        await basePage.waitForElementPresent(page.getByRole('textbox', {name: 'Email'}));
+        
+        // Check if form is clickable before proceeding
+        const isFormReady = await basePage.isElementClickable(page.getByRole('button', {name: 'Sign in'}));
+        expect(isFormReady).toBe(true);
+        
         await loginPage.signIn('test@test.com', 'password');
+        
+        // Check if login was successful
+        const isSuccessPresent = await basePage.isElementPresent(page.getByText('Dashboard'));
+        expect(isSuccessPresent).toBe(true);
     });
 })
+*/
