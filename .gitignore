@@ -45,5 +45,6 @@ Thumbs.db
 node_modules/
 /playwright-report/
 /blob-report/
+/test-results/
 /playwright/.cache/
 /playwright/.auth/
