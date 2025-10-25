@@ -1,11 +1,13 @@
 # Commit Test Workflow
 # This workflow runs all commit tests for quick feedback on PRs
+# Triggers: PR creation + every push to existing PRs (synchronize events)
 name: Commit Test Check
 
 # Trigger conditions: When to run this workflow
 on:
   pull_request:
-    branches: [main, develop] # Only run on PRs to main or develop branches
+    types: [opened, synchronize, reopened] # Run on PR creation, updates, and reopening
+    branches: [main, develop] # Run on PRs to main or develop branches
     paths: # Only run when these files change
       - "tests/**" # Any test files
       - "src/**" # Source code changes
@@ -30,7 +32,11 @@ jobs:
 
       # Step 3: Install project dependencies
       - name: Install dependencies
-        run: npm ci # Use npm ci for faster, reliable installs in CI
+        run: npm ci --legacy-peer-deps # Use legacy peer deps to resolve conflicts
+
+      # Step 3.5: Install webpack dependency
+      - name: Install webpack
+        run: npm install webpack --legacy-peer-deps # Install webpack explicitly
 
       # Step 4: Install Playwright browser (Chromium only for speed)
       - name: Install Playwright Browsers

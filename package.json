@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@angular/animations": "^14.2.12",
-    "@angular/cdk": "12.1.0",
+    "@angular/cdk": "^14.2.7",
     "@angular/common": "^14.2.12",
     "@angular/compiler": "^14.2.12",
     "@angular/core": "^14.2.12",
@@ -53,6 +53,7 @@
     "tslib": "^2.3.1",
     "typeface-exo": "0.0.22",
     "web-animations-js": "^2.3.2",
+    "webpack": "^5.102.1",
     "zone.js": "~0.11.4"
   },
   "devDependencies": {
